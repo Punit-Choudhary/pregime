@@ -1,6 +1,5 @@
 import twilio_api
-from bson.json_util import dumps
-import re
+import requests
 import os
 import utils.date as date
 import utils.tools as tools
@@ -47,7 +46,15 @@ def home():
   username = get_jwt_identity()
   tools.update(username, user_collection)
 
-  return render_template('home.html')
+  today = str(int(date.get_yday()))
+  cal_info = calorie_collection.find_one({"_id": username})[today]
+  nutri_info = nutrients_collection.find_one({"_id": username})[today]
+
+  cal_info = {"total": cal_info['total'], "target": cal_info['daily_goal']}
+
+  foods = suggested_food(cal_info['target'] - cal_info['total'])
+
+  return render_template('home.html', cal=cal_info, nutri=nutri_info, foods=foods)
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -191,12 +198,14 @@ def remove_emergency(phno):
   return redirect('/')
 
 
-@app.route('/emergency/')
+@app.route('/emergency/<lat>/<long>')
 @jwt_required(locations='cookies')
-def emergency():
+def emergency(lat, long):
   username = get_jwt_identity()
 
   emergency_list = user_collection.find_one({"_id": username})['emergency']
+
+  # send sms - twilio things
 
   return emergency_list
 
@@ -204,20 +213,10 @@ def emergency():
 # -- Emergency Ends -- #
 
 
-@app.route('/contactaasha', methods=['GET', 'POST'])
+@app.route('/aasha', methods=['POST'])
 @jwt_required(locations='cookies')
 def contact_aasha():
-  username = get_jwt_identity()
-
-  if request.method == 'GET':
-    # get user's city
-    city = user_collection.find_one({"_id": username})['city']
-
-    # fetch aasha details
-    aasha_details = aasha_collection.find_one({"_id": city})
-
-    return aasha_details
-  elif request.method == 'POST':
+  if request.method == 'POST':
     name = request.form['name']
     phno = request.form['phno']
     city = request.form['city']
@@ -227,6 +226,29 @@ def contact_aasha():
     aasha_collection.insert_one(data)
     return redirect('/')
 
+
+@app.route('/doctor')
+@jwt_required(locations='cookies')
+def doctor():
+  """
+  Contact doctor (AASHA) and Share Nutrients Report
+  """
+  username = get_jwt_identity()
+
+  # get user's city
+  user_details = user_collection.find_one({"_id": username})
+  city = user_details['city']
+  emergency_contact = user_details['emergency']
+
+  # fetch aasha details
+  aasha_details = aasha_collection.find_one({"_id": city})
+
+
+# @app.route('/emergency')
+# @jwt_required(location='cookies')
+# def emergency():
+#   lat = request.args.get('lat')
+#   lad = request.args.get('lng')
 
 # -- Food -- #
 
@@ -339,12 +361,17 @@ def consume(barcode):
 
 
 def suggested_food(cal):
-  food_data = food_collection.find({"calorie": {"$lt": 25}, "healthy": True})
+  food_data = food_collection.find({"calorie": {"$lt": cal}, "healthy": True})
 
   if food_data:
     return food_data
   else:
     "Not Found"
+
+
+@app.route('/test')
+def testing():
+  return render_template('test.html')
 
 
 # -- Food Ends -- #
