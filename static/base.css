@@ -2,6 +2,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap");
 
 /*=============== VARIABLES CSS ===============*/
+
+body{
+  margin-top: 100px;
+}
 :root {
   --header-height: 3rem;
 
