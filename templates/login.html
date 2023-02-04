@@ -1,5 +1,57 @@
-{% if ctx['error'] %}
-<h1>{{ ctx['error'] }}</h1>
-{% else %}
-<h1>Login Karo Be</h1>
-{% endif %}
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <section class="intro">
+        <div class="mask d-flex align-items-center h-100 ">
+          <div class="container ">
+            <div class="row justify-content-center">
+              <div class="col-12 col-xl-10">
+                <div class="card shadow-lg  mb-5 bg-body rounded">
+                  <div class="card-body p-2">
+      
+                    <div class="row d-flex align-items-center">
+                      <div class="col-md-6 col-xl-7">
+    
+                        <div class="text-center">
+                          <img src="{{ url_for('static', filename='img/login.png') }}" class="img-fluid" alt="">
+                        </div>
+      
+                      </div>
+                      <div class="col-md-6 col-xl-4 text-center">
+      
+                        <h2 class="fw-bold mb-4 pb-2">Member Login</h2>
+
+                        <form method="post" action="/login" enctype="multipart/form-data">
+                        <div class="form-outline mb-3">
+                          <input type="text" name="username" id="typeEmail" class="form-control form-control-lg" />
+                          <label for="typeEmail">Username</label>
+                        </div>
+      
+                        <div class="form-outline mb-4">
+                          <input type="password" name="password" id="typePassword" class="form-control form-control-lg" />
+                          <label  for="typePassword">Password</label>
+                        </div>
+      
+                        <div class="text-center">
+                          <button class="btn btn-info btn-block btn-lg" type="submit">Login</button>
+                          <a href="#!" class="link-info">Create your Account <i class="fas fa-long-arrow-alt-right"></i></a>
+                        </div>
+                        </form>
+                      </div>
+                    </div>
+      
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+{% endblock %}

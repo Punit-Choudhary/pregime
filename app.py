@@ -55,8 +55,10 @@ def login():
   if request.method == 'GET':
     return render_template('login.html', ctx={})
   elif request.method == 'POST':
-    username = request.form['username']
-    password = request.form['password']
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    print(username, password)
 
     user_details = user_collection.find_one({"_id": username})
 
@@ -287,7 +289,7 @@ def search():
 @jwt_required(locations='cookies')
 def consume(barcode):
   username = get_jwt_identity()
-  
+
   food_details = food_collection.find_one({"_id": barcode})
 
   weight = food_details['weight']
