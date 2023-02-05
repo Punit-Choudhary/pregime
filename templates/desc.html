@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Food{% endblock %}
+
+{% block css %}
+<style>
+  body{
+  margin-top: 100px;
+  margin-button: 100px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container text-center">
+        <div class="row align-items-start">
+          <div class="col">
+            <div class="card mx-auto" style="width: 18rem;">
+                <h5 class="card-title">{{ food['name'].title() }}</h5>
+                <img src="{{ food['imgUrl'] }}" class="card-img-top" alt="...">
+                <div class="card-body">
+<!--                   <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
+                  {% if food['healthy'] %}
+                  <a href="/consume/{{ food['_id'] }}" class="btn btn-success">Eat</a>
+                  {% else %}
+                    <a href="/consume/{{ food['_id'] }}" class="btn btn-danger">Eat</a>
+                  {% endif %}
+                </div>
+              </div>
+          </div>
+          <div class="col">
+            <div class="container align-start">
+                <p class="mx-auto"><b>Nutritional Content</b></p>
+                <ul class="text-start">
+                    <li>calorie: <span>{{ food['calorie'] }}</span></li>
+                    <li>protein: <span>{{ food['nutrients']['protein'] }}</span></li>
+                    <li>carbs: <span>{{ food['nutrients']['carbs'] }}</span></li>
+                    <li>fat: <span>{{ food['nutrients']['fat'] }}</span></li>
+                    <li>iron: <span>{{ food['nutrients']['iron'] }}</span></li>
+                    <li>calcium: <span>{{ food['nutrients']['calcium'] }}</span></li>
+                </ul>
+              {% if food['healthy'] %}
+                <p>Why we recommend?</p>
+              {% else %}
+                <p>Why we don't recommend?</p>
+              {% endif %}
+
+                <p>
+                  {{ food['about'] }}
+                </p>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+{% endblock %}

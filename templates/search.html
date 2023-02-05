@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}SearchResult{% endblock %}
+
+{% block css %}
+
+<style>
+  body{
+  margin-top: 100px;
+  margin-button: 100px;
+}
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+{% for product in products %}
+  <a href="/food/{{ product['_id'] }}">
+    <div class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <img src="{{ product['imgUrl'] }}" class="img-fluid rounded-start" alt="">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{ product['name'].title() }}</h5>
+              <p class="card-text"></p>
+              <p class="card-text"><small class="text-muted">Calories: {{ product['calorie'] }}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+  </a>
+{% endfor %}
+{% endblock %}

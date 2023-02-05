@@ -12,7 +12,7 @@ def update(username, user_collection):
   if today != user_details['last_sync']:
     # New Day
     daily_setup(user_details['bmi'], user_details['weight'],
-                user_details['trimeter'], today, username)
+                user_details['trimester'], today, username)
 
   day = int(user_details['day']) + today - int(user_details['last_sync'])
 
@@ -47,6 +47,7 @@ def daily_setup(bmi, weight, trimester, today, username):
   nutrients_daily_goal = nutrients_goal()
 
   nutrients_collection.update_one({"_id": username}, {
+    "$set": {
     str(int(today)): {
       "carbs": 0,
       "carbs_goal": nutrients_daily_goal['carbs'],
@@ -58,7 +59,7 @@ def daily_setup(bmi, weight, trimester, today, username):
       "calcium_goal": nutrients_daily_goal['calcium'],
       "iron": 0,
       "iron_goal": nutrients_daily_goal['iron']
-    }
+    }}
   })
 
 

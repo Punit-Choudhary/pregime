@@ -1,3 +1,7 @@
+body{
+  margin-bottom:100px;
+  margin-top:100px
+}
 .gradient-custom-3 {
     /* fallback for old browsers */
     background: #84fab0;

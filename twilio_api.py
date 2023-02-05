@@ -13,14 +13,14 @@ def make_call(name, phno):
   print("Calling, SID: " + str(call.sid))
 
 
-def send_sms(name, phno):
+def send_sms(name, phno, map):
   message_body = f"""
-  Hey {name}
-  Hello Pregime :)
+  Hello from Pregime,
+  this is a emergency call regarding pregnancy of
+  Your friend {name}, she needs your help, kindly contact her. 
+  Her last location at the time of emergency was {map}
   """
 
   message = client.messages.create(body=message_body, to=phno, from_='+17753464379')
 
   print("Message sent with the SID: " + str(message.sid))
-
-# make_call("Reema", "")

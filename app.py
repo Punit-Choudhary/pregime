@@ -26,7 +26,7 @@ calorie_collection = dbs['CALORIE']
 nutrients_collection = dbs['NUTRIENTS']
 food_collection = dbs['FOOD']
 aasha_collection = dbs['AASHA']
-
+article_collection = dbs['ARTICLES']
 # -- Database Setup Ends -- #
 
 
@@ -54,7 +54,10 @@ def home():
 
   foods = suggested_food(cal_info['target'] - cal_info['total'])
 
-  return render_template('home.html', cal=cal_info, nutri=nutri_info, foods=foods)
+  return render_template('home.html',
+                         cal=cal_info,
+                         nutri=nutri_info,
+                         foods=foods)
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -195,20 +198,23 @@ def remove_emergency(phno):
 
   user_collection.update_one({"_id": username}, {"$pull": {"emergency": phno}})
 
-  return redirect('/')
+  return redirect('/emergency')
 
 
 @app.route('/emergency/<lat>/<long>')
 @jwt_required(locations='cookies')
-def emergency(lat, long):
+def emergency_callback(lat, long):
   username = get_jwt_identity()
+  map = f"https://www.google.com/maps/dir/?api=1&destination={lat},{long}"
 
   emergency_list = user_collection.find_one({"_id": username})['emergency']
 
   # send sms - twilio things
+  for contact in emergency_list:
+    twilio_api.send_sms(username, contact, map)
+    twilio_api.make_call(username, contact)
 
-  return emergency_list
-
+  return redirect('/')
 
 # -- Emergency Ends -- #
 
@@ -227,12 +233,10 @@ def contact_aasha():
     return redirect('/')
 
 
-@app.route('/doctor')
+
+@app.route('/emergency')
 @jwt_required(locations='cookies')
-def doctor():
-  """
-  Contact doctor (AASHA) and Share Nutrients Report
-  """
+def emergency():
   username = get_jwt_identity()
 
   # get user's city
@@ -242,13 +246,9 @@ def doctor():
 
   # fetch aasha details
   aasha_details = aasha_collection.find_one({"_id": city})
+  
+  return render_template('emergency.html', aasha=aasha_details, contacts=emergency_contact)
 
-
-# @app.route('/emergency')
-# @jwt_required(location='cookies')
-# def emergency():
-#   lat = request.args.get('lat')
-#   lad = request.args.get('lng')
 
 # -- Food -- #
 
@@ -293,18 +293,19 @@ def add_food():
 @jwt_required(locations='cookies')
 def food(barcode):
   food_details = food_collection.find_one({"_id": barcode})
-  return food_details
+
+  return render_template("desc.html", food=food_details)
 
 
 @app.route('/search', methods=['POST'])
 @jwt_required(locations='cookies')
 def search():
-  query = request.form['query']
+  query = request.form.get('query')
   data = food_collection.find({"about": {"$regex": query}})
 
   data = list(data)
 
-  return data
+  return render_template("search.html", products=data)
 
 
 @app.route('/consume/<barcode>')
@@ -326,7 +327,6 @@ def consume(barcode):
 
   today = str(int(date.get_yday()))
   cal_data = calorie_collection.find_one({"_id": username})
-  print(cal_data)
 
   cal_value = int(cal_data[today]['total']) + cal
 
@@ -360,6 +360,12 @@ def consume(barcode):
   return redirect('/')
 
 
+@app.route('/blogs')
+@jwt_required(locations='cookies')
+def blogs():
+  articles = article_collection.find({})
+  return render_template('blog.html', articles=articles)
+
 def suggested_food(cal):
   food_data = food_collection.find({"calorie": {"$lt": cal}, "healthy": True})
 
@@ -367,12 +373,6 @@ def suggested_food(cal):
     return food_data
   else:
     "Not Found"
-
-
-@app.route('/test')
-def testing():
-  return render_template('test.html')
-
 
 # -- Food Ends -- #
 
